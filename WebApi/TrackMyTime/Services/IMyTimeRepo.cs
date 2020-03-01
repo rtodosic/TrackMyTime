@@ -6,7 +6,7 @@ namespace TrackMyTime.Services
 {
     public interface IMyTimeRepo
     {
-        List<TimeModel> GetItemsAsync(string userId, string timeGroup);
+        List<TimeModel> GetItems(string userId, string timeGroup);
         Task<TimeModel> GetItemAsync(string id, string userId);
         Task AddItemAsync(TimeModel item);
     }

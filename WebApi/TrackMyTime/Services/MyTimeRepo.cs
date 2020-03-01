@@ -33,7 +33,7 @@ namespace TrackMyTime.Services
             }
         }
 
-        public List<TimeModel> GetItemsAsync(string userId, string timeGroup)
+        public List<TimeModel> GetItems(string userId, string timeGroup)
         {
             var query = from t in _container.GetItemLinqQueryable<TimeModel>(allowSynchronousQueryExecution: true)
                         where t.UserId == userId && t.TimeGroup == timeGroup

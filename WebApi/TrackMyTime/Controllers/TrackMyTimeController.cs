@@ -18,19 +18,17 @@ namespace TrackMyTime.Controllers
     public class TrackMyTimeController : Controller
     {
         private readonly IMyTimeRepo _myTimeRepo;
-        private readonly LinkGenerator _linkGenerator;
 
-        public TrackMyTimeController(IMyTimeRepo myTimeRepo, LinkGenerator linkGenerator)
+        public TrackMyTimeController(IMyTimeRepo myTimeRepo)
         {
             _myTimeRepo = myTimeRepo;
-            _linkGenerator = linkGenerator;
         }
 
 
         [HttpGet(Name = "GetByGroup")]
-        public IEnumerable<TimeModel> GetByGroupAsync(string timeGroup)
+        public IEnumerable<TimeModel> GetByGroup(string timeGroup)
         {
-            var myTimes = _myTimeRepo.GetItemsAsync("123", timeGroup);
+            var myTimes = _myTimeRepo.GetItems("123", timeGroup);
             return myTimes;
         }
 
