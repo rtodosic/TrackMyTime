@@ -35,7 +35,7 @@ namespace TrackMyTime.Controllers
         [HttpPost]
         public ActionResult<TimeModel> Post([Bind("Id,UserId,TimeGroup,Start,End,Notes")]TimeModel model)
         {
-            if (string.IsNullOrWhiteSpace(model.UserId))
+            if (string.IsNullOrWhiteSpace(model?.UserId))
                 return BadRequest("JSON userId property must be set.");
 
             if (string.IsNullOrWhiteSpace(model.TimeGroup))
@@ -51,7 +51,7 @@ namespace TrackMyTime.Controllers
             {
                 model.Id = Guid.NewGuid().ToString();
                 _myTimeRepo.AddItemAsync(model);
-                return Created("api/v1/trackmytime/?timeGroup=" + Uri.EscapeDataString(model.TimeGroup) , model);
+                return Created(new Uri("api/v1/trackmytime/?timeGroup=" + Uri.EscapeDataString(model.TimeGroup)), model);
             }
             catch
             {

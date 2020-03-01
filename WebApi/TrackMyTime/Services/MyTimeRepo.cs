@@ -17,14 +17,14 @@ namespace TrackMyTime.Services
 
         public async Task AddItemAsync(TimeModel item)
         {
-            await _container.CreateItemAsync<TimeModel>(item, new PartitionKey(item.UserId));
+            await _container.CreateItemAsync(item, new PartitionKey(item?.UserId)).ConfigureAwait(false);
         }
 
         public async Task<TimeModel> GetItemAsync(string id, string userId)
         {
             try
             {
-                ItemResponse<TimeModel> response = await _container.ReadItemAsync<TimeModel>(id, new PartitionKey(userId));
+                ItemResponse<TimeModel> response = await _container.ReadItemAsync<TimeModel>(id, new PartitionKey(userId)).ConfigureAwait(false);
                 return response.Resource;
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
