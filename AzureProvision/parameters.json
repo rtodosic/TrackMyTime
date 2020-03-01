@@ -1,0 +1,15 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_track_my_time_app_name": {
+            "value": null
+        },
+        "serverfarms_track_my_time_webapi_name": {
+            "value": null
+        },
+        "databaseAccounts_track_my_time_name": {
+            "value": null
+        }
+    }
+}

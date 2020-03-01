@@ -1,0 +1,336 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_track_my_time_app_name": {
+            "defaultValue": "track-my-time-app",
+            "type": "String"
+        },
+        "serverfarms_track_my_time_webapi_name": {
+            "defaultValue": "track-my-time-webapi",
+            "type": "String"
+        },
+        "databaseAccounts_track_my_time_name": {
+            "defaultValue": "track-my-time",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2019-12-12",
+            "name": "[parameters('databaseAccounts_track_my_time_name')]",
+            "location": "East US 2",
+            "tags": {
+                "defaultExperience": "Core (SQL)",
+                "hidden-cosmos-mmspecial": ""
+            },
+            "kind": "GlobalDocumentDB",
+            "properties": {
+                "enableAutomaticFailover": false,
+                "enableMultipleWriteLocations": false,
+                "isVirtualNetworkFilterEnabled": false,
+                "virtualNetworkRules": [],
+                "disableKeyBasedMetadataWriteAccess": false,
+                "databaseAccountOfferType": "Standard",
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "Session",
+                    "maxIntervalInSeconds": 5,
+                    "maxStalenessPrefix": 100
+                },
+                "locations": [
+                    {
+                        "locationName": "East US 2",
+                        "provisioningState": "Succeeded",
+                        "failoverPriority": 0,
+                        "isZoneRedundant": false
+                    }
+                ],
+                "capabilities": []
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[parameters('serverfarms_track_my_time_webapi_name')]",
+            "location": "East US 2",
+            "sku": {
+                "name": "F1",
+                "tier": "Free",
+                "size": "F1",
+                "family": "F",
+                "capacity": 0
+            },
+            "kind": "app",
+            "properties": {
+                "perSiteScaling": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+            "apiVersion": "2019-12-12",
+            "name": "[concat(parameters('databaseAccounts_track_my_time_name'), '/tmt')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_track_my_time_name'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "tmt"
+                },
+                "options": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('sites_track_my_time_app_name')]",
+            "location": "East US 2",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_track_my_time_webapi_name'))]"
+            ],
+            "kind": "app",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('sites_track_my_time_app_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('sites_track_my_time_app_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_track_my_time_webapi_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "hostNamesDisabled": false,
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": false,
+                "redundancyMode": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(parameters('sites_track_my_time_app_name'), '/web')]",
+            "location": "East US 2",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_track_my_time_app_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "phpVersion": "5.6",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$track-my-time-app",
+                "scmType": "VSTSRM",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": true,
+                "minTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "reservedInstanceCount": 0
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(parameters('sites_track_my_time_app_name'), '/bfd71fb6180d4da5842075d8d07465ae')]",
+            "location": "East US 2",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_track_my_time_app_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"0f7e88f7912fa8b2aa772ea2c695de9149026a6e\",\"buildId\":\"31\",\"releaseId\":\"2\",\"buildNumber\":\"1.1.11\",\"releaseName\":\"Release-2\",\"repoProvider\":\"GitHub\",\"repoName\":\"rtodosic/TrackMyTime\",\"collectionUrl\":\"https://rtodosic.visualstudio.com/\",\"teamProject\":\"77e8fbbb-f360-4d3d-9cfb-7a23c67d1732\",\"buildProjectUrl\":\"https://rtodosic.visualstudio.com/77e8fbbb-f360-4d3d-9cfb-7a23c67d1732\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"TrackMyTime\",\"slotName\":\"production\"}",
+                "start_time": "2020-03-01T19:52:10.0922324Z",
+                "end_time": "2020-03-01T19:52:10.3739497Z",
+                "active": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(parameters('sites_track_my_time_app_name'), '/f20ca67bb1c24518a4c7091507d65dfa')]",
+            "location": "East US 2",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_track_my_time_app_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"0d4bc0cb67a7e90b688456706d4ce6efc79e607e\",\"buildId\":\"30\",\"releaseId\":\"1\",\"buildNumber\":\"1.1.10\",\"releaseName\":\"Release-1\",\"repoProvider\":\"GitHub\",\"repoName\":\"rtodosic/TrackMyTime\",\"collectionUrl\":\"https://rtodosic.visualstudio.com/\",\"teamProject\":\"77e8fbbb-f360-4d3d-9cfb-7a23c67d1732\",\"buildProjectUrl\":\"https://rtodosic.visualstudio.com/77e8fbbb-f360-4d3d-9cfb-7a23c67d1732\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"TrackMyTime\",\"slotName\":\"production\"}",
+                "start_time": "2020-03-01T19:34:46.322121Z",
+                "end_time": "2020-03-01T19:34:46.5251726Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(parameters('sites_track_my_time_app_name'), '/', parameters('sites_track_my_time_app_name'), '.azurewebsites.net')]",
+            "location": "East US 2",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_track_my_time_app_name'))]"
+            ],
+            "properties": {
+                "siteName": "track-my-time-app",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+            "apiVersion": "2019-12-12",
+            "name": "[concat(parameters('databaseAccounts_track_my_time_name'), '/tmt/Times')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_track_my_time_name'), 'tmt')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_track_my_time_name'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "Times",
+                    "indexingPolicy": {
+                        "indexingMode": "consistent",
+                        "automatic": true,
+                        "includedPaths": [
+                            {
+                                "path": "/*"
+                            }
+                        ],
+                        "excludedPaths": [
+                            {
+                                "path": "/\"notes\"/?"
+                            },
+                            {
+                                "path": "/\"_etag\"/?"
+                            }
+                        ],
+                        "compositeIndexes": [
+                            [
+                                {
+                                    "path": "/userId",
+                                    "order": "ascending"
+                                },
+                                {
+                                    "path": "/timGroup",
+                                    "order": "ascending"
+                                }
+                            ],
+                            [
+                                {
+                                    "path": "/userId",
+                                    "order": "ascending"
+                                },
+                                {
+                                    "path": "/timGroup",
+                                    "order": "ascending"
+                                },
+                                {
+                                    "path": "/start",
+                                    "order": "descending"
+                                }
+                            ]
+                        ]
+                    },
+                    "partitionKey": {
+                        "paths": [
+                            "/userId"
+                        ],
+                        "kind": "Hash"
+                    },
+                    "conflictResolutionPolicy": {
+                        "mode": "LastWriterWins",
+                        "conflictResolutionPath": "/_ts"
+                    }
+                },
+                "options": {}
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/throughputSettings",
+            "apiVersion": "2019-12-12",
+            "name": "[concat(parameters('databaseAccounts_track_my_time_name'), '/tmt/Times/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', parameters('databaseAccounts_track_my_time_name'), 'tmt', 'Times')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_track_my_time_name'), 'tmt')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_track_my_time_name'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "throughput": 400
+                }
+            }
+        }
+    ]
+}
