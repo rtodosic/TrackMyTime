@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TrackMyTime
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
@@ -20,7 +20,11 @@ namespace TrackMyTime
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>()
+                    .ConfigureAppConfiguration(configurationBuilder =>
+                    {
+                        configurationBuilder.AddJsonFile("azurekeys.json", true);
+                    });
                 });
     }
 }
