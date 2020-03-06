@@ -4,7 +4,8 @@
     "parameters": {},
     "variables": {
         "sites_track_my_time_name": "track-my-time",
-        "serverfarms_ASP_TrackMyTime_b3f4_name": "ASP-TrackMyTime-b3f4",
+        "components_track_my_time_name": "track-my-time",
+        "serverfarms_track_my_time_plan_name": "track-my-time-plan",
         "databaseAccounts_track_my_time_db_name": "track-my-time-db"
     },
     "resources": [
@@ -43,23 +44,34 @@
             }
         },
         {
+            "type": "microsoft.insights/components",
+            "apiVersion": "2015-05-01",
+            "name": "[variables('components_track_my_time_name')]",
+            "location": "eastus2",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web",
+                "Request_Source": "IbizaWebAppExtensionCreate"
+            }
+        },
+        {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
-            "name": "[variables('serverfarms_ASP_TrackMyTime_b3f4_name')]",
+            "name": "[variables('serverfarms_track_my_time_plan_name')]",
             "location": "East US 2",
             "sku": {
-                "name": "P1v2",
-                "tier": "PremiumV2",
-                "size": "P1v2",
-                "family": "Pv2",
-                "capacity": 1
+                "name": "F1",
+                "tier": "Free",
+                "size": "F1",
+                "family": "F",
+                "capacity": 0
             },
-            "kind": "linux",
+            "kind": "app",
             "properties": {
                 "perSiteScaling": false,
                 "maximumElasticWorkerCount": 1,
                 "isSpot": false,
-                "reserved": true,
+                "reserved": false,
                 "isXenon": false,
                 "hyperV": false,
                 "targetWorkerCount": 0,
@@ -72,9 +84,9 @@
             "name": "[variables('sites_track_my_time_name')]",
             "location": "East US 2",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('serverfarms_ASP_TrackMyTime_b3f4_name'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('serverfarms_track_my_time_plan_name'))]"
             ],
-            "kind": "app,linux",
+            "kind": "app",
             "properties": {
                 "enabled": true,
                 "hostNameSslStates": [
@@ -89,12 +101,12 @@
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverfarms_ASP_TrackMyTime_b3f4_name'))]",
-                "reserved": true,
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverfarms_track_my_time_plan_name'))]",
+                "reserved": false,
                 "isXenon": false,
                 "hyperV": false,
                 "scmSiteAlsoStopped": false,
-                "clientAffinityEnabled": false,
+                "clientAffinityEnabled": true,
                 "clientCertEnabled": false,
                 "hostNamesDisabled": false,
                 "containerSize": 0,
@@ -125,7 +137,7 @@
                     "hostingstart.html"
                 ],
                 "netFrameworkVersion": "v4.0",
-                "linuxFxVersion": "DOTNETCORE|3.1",
+                "phpVersion": "5.6",
                 "requestTracingEnabled": false,
                 "remoteDebuggingEnabled": false,
                 "httpLoggingEnabled": false,
@@ -135,13 +147,13 @@
                 "scmType": "None",
                 "use32BitWorkerProcess": true,
                 "webSocketsEnabled": false,
-                "alwaysOn": true,
+                "alwaysOn": false,
                 "managedPipelineMode": "Integrated",
                 "virtualApplications": [
                     {
                         "virtualPath": "/",
                         "physicalPath": "site\\wwwroot",
-                        "preloadEnabled": true
+                        "preloadEnabled": false
                     }
                 ],
                 "loadBalancing": "LeastRequests",
