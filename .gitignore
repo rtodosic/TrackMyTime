@@ -10,7 +10,7 @@
 *.userosscache
 *.sln.docstates
 
-# Secret Settings 
+# Secret Settings
 azurekeys.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
@@ -50,6 +50,10 @@ Generated\ Files/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+#Code Coverate
+coverage.cobertura.xml
+coverage.json
 
 # Build Results of an ATL Project
 [Dd]ebugPS/
