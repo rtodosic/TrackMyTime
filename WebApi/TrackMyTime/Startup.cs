@@ -9,11 +9,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using TrackMyTime.Services;
 
 namespace TrackMyTime
 {
+    [ExcludeFromCodeCoverageAttribute]
     public class Startup
     {
         public Startup(IConfiguration configuration)
