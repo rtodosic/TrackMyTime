@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>TrackMyTime</AssemblyName>
+    <Authors>Richard Todosichuk</Authors>
+    <Company />
+    <Copyright>© 2020 Richard Todosichuk. All rights reserved.</Copyright>
+    <PackageTags></PackageTags>
+    <AssemblyVersion>1.1.1.1</AssemblyVersion>
+    <FileVersion>1.1.1.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
