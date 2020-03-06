@@ -1,11 +1,13 @@
 ﻿using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using TrackMyTime.Models;
 
 namespace TrackMyTime.Services
 {
+    [ExcludeFromCodeCoverage]
     public class MyTimeRepo: IMyTimeRepo
     {
         private Container _container;

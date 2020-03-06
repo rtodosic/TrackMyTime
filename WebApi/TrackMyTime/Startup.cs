@@ -15,7 +15,7 @@ using TrackMyTime.Services;
 
 namespace TrackMyTime
 {
-    [ExcludeFromCodeCoverageAttribute]
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)

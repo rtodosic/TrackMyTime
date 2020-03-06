@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace TrackMyTime
 {
-    [ExcludeFromCodeCoverageAttribute]
+    [ExcludeFromCodeCoverage]
     public static class Program
     {
         public static void Main(string[] args)
