@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TrackMyTime.Models;
-using TrackMyTime.Services;
+using TrackMyTime.Repositories;
 
 // https://www.hanselman.com/blog/ASPNETCoreRESTfulWebAPIVersioningMadeEasy.aspx
 // https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-dotnet-application
@@ -15,20 +17,22 @@ namespace TrackMyTime.Controllers
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
-    public class TrackMyTimeController : Controller
+    public class TimeController : Controller
     {
         private readonly IMyTimeRepo _myTimeRepo;
+        private readonly ILogger<TimeController> _logger;
 
-        public TrackMyTimeController(IMyTimeRepo myTimeRepo)
+        public TimeController(IMyTimeRepo myTimeRepo, ILogger<TimeController> logger)
         {
             _myTimeRepo = myTimeRepo;
+            _logger = logger;
         }
 
 
         [HttpGet(Name = "GetByGroup")]
-        public IEnumerable<TimeModel> GetByGroup(string timeGroup)
+        public async Task<IEnumerable<TimeModel>> GetByGroupAsync(string timeGroup)
         {
-            var myTimes = _myTimeRepo.GetItems("123", timeGroup);
+            var myTimes = await _myTimeRepo.GetTimesAsync("123", timeGroup).ConfigureAwait(true);
             return myTimes;
         }
 
@@ -50,12 +54,28 @@ namespace TrackMyTime.Controllers
             try
             {
                 model.Id = Guid.NewGuid().ToString();
-                _myTimeRepo.AddItemAsync(model);
-                return Created(new Uri("api/v1/trackmytime/?timeGroup=" + Uri.EscapeDataString(model.TimeGroup)), model);
+                _myTimeRepo.AddTimeAsync(model);
+
+                try
+                {
+                    _myTimeRepo.AddTimeGroupsAsync(new TimeGroupModel()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = model.TimeGroup,
+                        UserId = model.UserId
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unable to post time group");
+                }
+
+                return CreatedAtRoute(new { id = model.TimeGroup }, model);
             }
-            catch
+            catch (Exception ex)
             {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "Data persist failure");
+                _logger.LogError(ex, "Unable to post time");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Data persist failure");
             }
         }
     }

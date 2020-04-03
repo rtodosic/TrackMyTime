@@ -20,7 +20,7 @@
     "TrackMyTime": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/v1/trackmytime?timeGroup=Test",
+      "launchUrl": "api/v1/time?timeGroup=Test",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

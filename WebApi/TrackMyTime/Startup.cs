@@ -11,7 +11,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using TrackMyTime.Services;
+using TrackMyTime.Repositories;
 
 namespace TrackMyTime
 {
@@ -66,7 +66,12 @@ namespace TrackMyTime
 
             var clientBuilder = new CosmosClientBuilder(account, key);
             var client = clientBuilder.WithConnectionModeDirect().Build();
-            var database = await client.CreateDatabaseIfNotExistsAsync("tmt").ConfigureAwait(false);
+            var database = await client.CreateDatabaseIfNotExistsAsync("tmt").ConfigureAwait(true);
+
+            var timeGroupContainer = await database.Database.DefineContainer(name: "TimeGroups", partitionKeyPath: "/userId")
+              .WithUniqueKey().Path("/name")
+              .Attach()
+              .CreateIfNotExistsAsync().ConfigureAwait(true);
 
             var containerProps = new ContainerProperties
             {
@@ -78,18 +83,20 @@ namespace TrackMyTime
             containerProps.IndexingPolicy.CompositeIndexes.Add(new Collection<CompositePath>
             {
                 new CompositePath {Path = "/userId", Order=CompositePathSortOrder.Ascending},
-                new CompositePath {Path = "/timGroup", Order=CompositePathSortOrder.Ascending}
+                new CompositePath {Path = "/timeGroup", Order=CompositePathSortOrder.Ascending}
             });
             containerProps.IndexingPolicy.CompositeIndexes.Add(new Collection<CompositePath>
             {
                 new CompositePath {Path = "/userId", Order=CompositePathSortOrder.Ascending},
-                new CompositePath {Path = "/timGroup", Order=CompositePathSortOrder.Ascending},
+                new CompositePath {Path = "/timeGroup", Order=CompositePathSortOrder.Ascending},
                 new CompositePath {Path = "/start", Order=CompositePathSortOrder.Descending}
             });
-            var container = await database.Database.CreateContainerIfNotExistsAsync(containerProps, 400).ConfigureAwait(false);
+            var timeContainer = await database.Database.CreateContainerIfNotExistsAsync(containerProps, 400).ConfigureAwait(true);
 
-            var myTimeRepo = new MyTimeRepo(client.GetContainer(database.Database.Id, container.Container.Id));
-            return myTimeRepo;
+
+            return new MyTimeRepo(
+                client.GetContainer(database.Database.Id, timeContainer.Container.Id),
+                client.GetContainer(database.Database.Id, timeGroupContainer.Container.Id));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
